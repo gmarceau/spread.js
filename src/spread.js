@@ -46,7 +46,7 @@ var countLines = function (str) {
 
 var prettyPrintData = function (data, indent) {
     if (data === undefined) {
-        return '""'
+        return '{}'
     } else {
         var lines = JSON.stringify(data, null, 2).split('\n');
 

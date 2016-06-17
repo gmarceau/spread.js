@@ -29,3 +29,38 @@ If the following content is in `foo.js`
 var x = 5      //-> 0
 
 ```
+
+After running `spread.js test.js` the content of the file will be
+
+```javascript
+
+1 + 5                           //-> 6
+
+"asd" + "qwe"                   //-> "asdqwe"
+
+{x:[1, 2, 3, { a:4, b: 5} ].concat([6])}        //->
+                                                     [
+                                                       1,
+                                                       2,
+                                                       3,
+                                                       {
+                                                         "a": 4,
+                                                         "b": 5
+                                                       },
+                                                       6
+                                                     ]
+
+var x = 5      //-> {}
+```
+
+and the corresponding Emacs buffer is updated.
+
+Two things to note:
+
+* Single line JSON values are placed inside the marker
+  comment; multiple line values are placed on the line below, indented.
+  Since top-level object and arrays are valid javascript, they do not
+  interfere with the evaluation of the file
+
+* Since `undefined` is not a valid JSON value, undefined is output as
+  as the empty object instead, `{}`.
