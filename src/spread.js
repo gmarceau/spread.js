@@ -1,4 +1,3 @@
-#! /usr/bin/env node
 
 var fs = require('fs'),
     util = require('util'),
@@ -45,19 +44,15 @@ var countLines = function (str) {
 }
 
 var prettyPrintData = function (data, indent) {
-    if (data === undefined) {
-        return '{}'
-    } else {
-        var lines = JSON.stringify(data, null, 2).split('\n');
+    var lines = JSON.stringify(data, null, 2).split('\n');
 
-        if (lines.length == 1)
-            return lines[0]
-        else {
-            for(i in lines)
-                lines[i] = ' '.repeat(indent) + lines[i]
+    if (lines.length == 1)
+        return lines[0]
+    else {
+        for(i in lines)
+            lines[i] = ' '.repeat(indent) + lines[i]
 
-            return '\n' + lines.join('\n');
-        }
+        return '\n' + lines.join('\n');
     }
 }
 
@@ -70,15 +65,22 @@ var runAST = function (AST, filename, onCellDone) {
 
     for (cell of AST) {
         var cellResult = runCell(cell, context, filename, lineOffset, columnOffset);
+        if (cellResult === undefined) {
+            cellResult = {};
+        }
+
+        if (! _.isEqual(cellResult, jsonParseRaw(cell.data)[0])) {
+            cell.data = ' ' + prettyPrintData(cellResult, cell.indentation + cell.marker.length + 1);
+            cell.changed = true;
+        }
+
         var cellText = prettyPrintCell(cell)
         var cellLines = countLines(cellText)
-
         lineOffset += cellLines;
         columnOffset = cellLines == 1 ?
             columnOffset + cellText.length :
             parse.tailLength(cellText)
 
-        cell.data = ' ' + prettyPrintData(cellResult, cell.indentation + cell.marker.length + 1);
 
         if (onCellDone)
             onCellDone(cell);
@@ -94,7 +96,9 @@ var runFile = function (filename, onCellDone) {
     var ast = parse.text(fs.readFileSync(filename).toString());
 
     runAST(ast, filename, function (cell) {
-        fs.writeFileSync(filename, prettyPrint(ast))
+        if (cell.changed) {
+            fs.writeFileSync(filename, prettyPrint(ast))
+        }
         if (onCellDone)
             onCellDone(cell)
     })
@@ -113,16 +117,14 @@ var main = function () {
     var filename = process.argv[2]
     if (fs.existsSync(filename)) {
         runFile(filename, function (cell) {
-            notifyEmacs(filename)
+            if (cell.changed) {
+                notifyEmacs(filename)
+            }
         })
     } else {
         console.log(util.format("file %s doesn't exists", filename))
     }
 
-}
-
-if (process.argv[2]) {
-    main()
 }
 
 module.exports = {
