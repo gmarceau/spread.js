@@ -1,10 +1,10 @@
 
-`spread.js` is a small command line program that combines `nodejs`,
+`spread.js` is a small command line program that combines `Node.js`,
 `Emacs` and `emacsclient` into a minimalist's worksheet interface
 
 `spread.js` evaluates the entire file with `node`. For each top-level
 expression, `spread.js` looks for a `//->` marker. If it finds one, it
-insert the result of that expression after the maker _in the source
+inserts the result of that expression after the maker _in the source
 file itself_. Then it notifies `Emacs` via `emacsclient` to revert the
 buffer visiting the file.
 
@@ -13,7 +13,7 @@ in place, on the screen, in real time, just like they would in a
 spreadsheet or a worksheet interface.
 
 The data is inserted into the source file in JSON syntax in such a way
-that the file continues to evaluates normally with node.
+that the file continues to evaluates normally with `Node.js`.
 
 If the following content is in `foo.js`
 
@@ -30,7 +30,7 @@ var x = 5      //-> 0
 
 ```
 
-After running `spread.js test.js` the content of the file will be
+After running `spread.js foo.js` the new content of the file will be
 
 ```javascript
 
@@ -64,3 +64,8 @@ Two things to note:
 
 * Since `undefined` is not a valid JSON value, undefined is output as
   as the empty object instead, `{}`.
+
+Known Bug
+---------------
+
+* Any text to the right of the value but inside of a comment will be evaluated.
