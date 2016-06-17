@@ -1,0 +1,17 @@
+{
+  "name": "spread.js",
+  "version": "1.0.0",
+  "description": "Combines nodejs, Emacs and emacsclient into a minimalist's worksheet interface",
+  "main": "spread.js",
+  "dependencies": {
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "should": "^9.0.2",
+  },
+  "scripts": {
+    "test": "mocha ."
+  },
+  "author": "Guillaume Marceau",
+  "license": "GPL v3.0"
+}
