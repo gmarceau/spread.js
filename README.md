@@ -55,7 +55,7 @@ var x = 5      //-> {}
 
 and the corresponding Emacs buffer is updated.
 
-Two things to note:
+Three things to note:
 
 * Single line JSON values are placed inside the marker
   comment; multiple line values are placed on the line below, indented.
@@ -65,7 +65,13 @@ Two things to note:
 * Since `undefined` is not a valid JSON value, undefined is output as
   as the empty object instead, `{}`.
 
+* Since top-level object literals are not allow in Javascript, they
+  are prefixed with a `0,` in the output to promote them to an
+  expression. This maintains compatibility with normal evaluation with
+  `node`.
+
+
 Known Bug
 ---------------
 
-* Any text to the right of the value but inside of a comment will be evaluated.
+* Any text to the right of the value but inside of the marker comment will be evaluated.

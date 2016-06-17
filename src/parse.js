@@ -4,7 +4,7 @@ var _ = require('underscore'),
     jsonParseRaw = require('./json_parse_raw');
 
 var Marker = '//->'
-var MarkerRegExp = /\/\/-> *\n?/g;
+var MarkerRegExp = /\/\/->\s*(0,)?/g;
 
 
 

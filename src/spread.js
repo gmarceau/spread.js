@@ -34,20 +34,42 @@ var runCell = function (cell, context, filename, lineOffset, columnOffset) {
         lineOffset: lineOffset,
         columnOffset: columnOffset
     });
-
     return script.runInContext(context)
 }
 
-var prettyPrintData = function (data, indent) {
-    var lines = JSON.stringify(data, null, 2).split('\n');
+var prettyPrintData = function (cell, newData) {
+    var lines = JSON.stringify(newData, null, 2).split('\n');
 
-    if (lines.length == 1)
-        return lines[0]
-    else {
-        for(i in lines)
-            lines[i] = ' '.repeat(indent) + lines[i]
+    if (! cell.marker) {
+        return { data: lines.join('\n') };
+    }
 
-        return '\n' + lines.join('\n');
+    // There are three cases
+    // 1. single-line values, which need nothing special
+    // 2. multi-lines arrays, which need a newline
+    // 3. multi-lines objects, which need a newline and a bump
+    var needsNewline = lines.length > 1;
+    var needsBump = lines[0].match(/^\s*{/) && lines.length > 1;
+
+    var marker;
+    if (! needsBump) {
+        // remove bump, if any
+        marker = cell.marker.replace(/\s*(0,)?\s*$/, "")
+            + (needsNewline ? '\n' : ' ')
+
+    } else if (! cell.marker.match(/0,\s*$/)) {
+        // add the missing bump since it's needed
+        var bump = '\n' + ' '.repeat(cell.indentation + 2) + '0, ';
+        marker = cell.marker.replace(/\s*$/, bump)
+    }
+
+    for(i in lines) {
+        if (i != 0 || (needsNewline && ! needsBump))
+            lines[i] = ' '.repeat(cell.indentation + 5) + lines[i]
+    }
+    return {
+        marker: marker,
+        data: lines.join('\n')
     }
 }
 
@@ -65,7 +87,7 @@ var runAST = function (AST, filename, onCellDone) {
         }
 
         if (! _.isEqual(cellResult, jsonParseRaw(cell.data)[0])) {
-            cell.data = prettyPrintData(cellResult, cell.indentation + cell.marker.length + 1);
+            _.extend(cell, prettyPrintData(cell, cellResult));
             cell.changed = true;
         }
 
