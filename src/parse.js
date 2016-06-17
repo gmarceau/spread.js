@@ -3,7 +3,7 @@ var _ = require('underscore'),
     jsonParseRaw = require('./json_parse_raw');
 
 var Marker = '//->'
-var MarkerRegExp = /\/\/-> *\n?/;
+var MarkerRegExp = /\/\/-> *\n?/g;
 
 
 var parse = module.exports = {
@@ -29,33 +29,55 @@ var parse = module.exports = {
     cells: function (splits) {
         var result = [];
 
-        var code = splits[0]
+        while(splits.length > 0) {
+            var code = splits.shift();
 
-        for (split of _.rest(splits)) {
-            var d = parse.splitData(split);
+            if (splits.length == 0) {
+                result.push({
+                    code: code,
+                    marker: false,
+                    data: '',
+                    changed: false,
+                    indentation: 0,
+                })
+                return result;
+            }
+
+            var marker = splits.shift();
+
+            var d = parse.splitData(splits.shift());
             var data = d[0];
 
             result.push({
                 code: code,
-                marker: Marker,
+                marker: marker,
                 data: data,
+                changed: false,
                 indentation: parse.tailLength(code),
             })
 
-            code = d[1];
+            if (d[1] !== "") {
+                splits.unshift(d[1])
+            }
         }
-
-        result.push({
-            code: code,
-            marker: false,
-            data: '',
-            indentation: 0,
-        })
 
         return result;
     },
 
+    splitMarkers: function (txt) {
+        var rg = new RegExp(MarkerRegExp);
+        var result = [];
+        var current = 0;
+        while (match = rg.exec(txt)) {
+            result.push(txt.substring(current, match.index))
+            result.push(match[0])
+            current = match.index + match[0].length
+        }
+        result.push(txt.substring(current))
+        return result;
+    },
+
     text: function (txt) {
-        return parse.cells(txt.split(MarkerRegExp));
+        return parse.cells(parse.splitMarkers(txt));
     }
 }

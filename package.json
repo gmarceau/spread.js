@@ -7,14 +7,14 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "should": "^9.0.2",
+    "should": "^9.0.2"
   },
   "scripts": {
-    "test": "mocha ."
+    "test": "mocha src/**.spec.js"
   },
   "bin": {
-    "spread.js": "src/spread.js"
-  }
+    "spread.js": "src/index.js"
+  },
 
   "author": "Guillaume Marceau",
   "license": "GPL v3.0"
