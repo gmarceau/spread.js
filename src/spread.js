@@ -135,5 +135,6 @@ module.exports = {
     prettyPrintData: prettyPrintData,
     runAST: runAST,
     run: run,
-    runFile: runFile
+    runFile: runFile,
+    main: main
 };
