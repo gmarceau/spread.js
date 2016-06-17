@@ -1,12 +1,18 @@
 
 var _ = require('underscore'),
+    util = require('util'),
     jsonParseRaw = require('./json_parse_raw');
 
 var Marker = '//->'
 var MarkerRegExp = /\/\/-> *\n?/g;
 
 
+
 var parse = module.exports = {
+    countLines: function (str) {
+        var m = str.match(/\n/g)
+        return m ? m.length : 0
+    },
 
     tailLength: function (code) {
         return _.last(code.split('\n')).length;
@@ -26,11 +32,20 @@ var parse = module.exports = {
         return [dataPart, tailPart]
     },
 
-    cells: function (splits) {
+    cells: function (splits, filename) {
         var result = [];
+        var lineNumber = 0;
+        var columnNumber = 0;
+
+        function advance(txt) {
+            var lines = parse.countLines(txt);
+            lineNumber += lines
+            columnNumber = lines > 1 ? parse.tailLength(txt) : columnNumber + txt.length
+        }
 
         while(splits.length > 0) {
             var code = splits.shift();
+            advance(code);
 
             if (splits.length == 0) {
                 result.push({
@@ -44,9 +59,17 @@ var parse = module.exports = {
             }
 
             var marker = splits.shift();
+            advance(marker);
 
-            var d = parse.splitData(splits.shift());
+            var d;
+            try {
+                d = parse.splitData(splits.shift());
+            } catch (e) {
+                var msg = util.format('%s\n    at %s:%d:%d', e.message, filename, lineNumber, columnNumber)
+                throw new Error(msg)
+            }
             var data = d[0];
+            advance(data);
 
             result.push({
                 code: code,
@@ -77,7 +100,7 @@ var parse = module.exports = {
         return result;
     },
 
-    text: function (txt) {
-        return parse.cells(parse.splitMarkers(txt));
+    text: function (txt, filename) {
+        return parse.cells(parse.splitMarkers(txt), filename);
     }
 }

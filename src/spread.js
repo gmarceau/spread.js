@@ -38,11 +38,6 @@ var runCell = function (cell, context, filename, lineOffset, columnOffset) {
     return script.runInContext(context)
 }
 
-var countLines = function (str) {
-    var m = str.match(/\n/g)
-    return m ? m.length : 0
-}
-
 var prettyPrintData = function (data, indent) {
     var lines = JSON.stringify(data, null, 2).split('\n');
 
@@ -75,7 +70,7 @@ var runAST = function (AST, filename, onCellDone) {
         }
 
         var cellText = prettyPrintCell(cell)
-        var cellLines = countLines(cellText)
+        var cellLines = parse.countLines(cellText)
         lineOffset += cellLines;
         columnOffset = cellLines == 1 ?
             columnOffset + cellText.length :
@@ -89,11 +84,11 @@ var runAST = function (AST, filename, onCellDone) {
 }
 
 var run = function (text, filename) {
-    return prettyPrint(runAST(parse.text(text), filename));
+    return prettyPrint(runAST(parse.text(text, filename), filename));
 }
 
 var runFile = function (filename, onCellDone) {
-    var ast = parse.text(fs.readFileSync(filename).toString());
+    var ast = parse.text(fs.readFileSync(filename).toString(), filename);
 
     runAST(ast, filename, function (cell) {
         if (cell.changed) {
@@ -131,7 +126,6 @@ module.exports = {
     parse: parse,
     prettyPrint: prettyPrint,
     runCell: runCell,
-    countLines: countLines,
     prettyPrintData: prettyPrintData,
     runAST: runAST,
     run: run,
