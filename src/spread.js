@@ -1,4 +1,4 @@
-//#!/usr/bin/env node
+#! /usr/bin/env node
 
 var fs = require('fs'),
     util = require('util'),
@@ -6,64 +6,8 @@ var fs = require('fs'),
     vm = require('vm'),
     path = require('path'),
     child = require('child_process'),
-    jsonParseRaw = require('./json_parse_raw');
-
-var Marker = '//->'
-var MarkerRegExp = /\/\/-> *\n?/;
-
-var parse = {
-
-    tailLength: function (code) {
-        return _.last(code.split('\n')).length;
-    },
-
-    splitData: function (split) {
-        var endIndex = jsonParseRaw(split)[1];
-
-        var dataPart = split.substring(0, endIndex);
-        var tailPart = split.substring(endIndex);
-
-        var whitespaceMatch = dataPart.match(/[ \n]+$/)
-        if (whitespaceMatch) {
-            tailPart = whitespaceMatch[0] + tailPart;
-            dataPart = dataPart.substring(0, whitespaceMatch.index)
-        }
-        return [dataPart, tailPart]
-    },
-
-    cells: function (splits) {
-        var result = [];
-
-        var code = splits[0]
-
-        for (split of _.rest(splits)) {
-            var d = parse.splitData(split);
-            var data = d[0];
-
-            result.push({
-                code: code,
-                marker: Marker,
-                data: data,
-                indentation: parse.tailLength(code),
-            })
-
-            code = d[1];
-        }
-
-        result.push({
-            code: code,
-            marker: false,
-            data: '',
-            indentation: 0,
-        })
-
-        return result;
-    },
-
-    text: function (txt) {
-        return parse.cells(txt.split(MarkerRegExp));
-    }
-}
+    jsonParseRaw = require('./json_parse_raw'),
+    parse = require('./parse');
 
 var prettyPrintCell = function (cell) {
     if (cell.marker) {
@@ -71,7 +15,7 @@ var prettyPrintCell = function (cell) {
         try {
             jsonParseRaw(cell.data)
         } catch (e) {
-            dataStr = '"spread.js error, non-json: ' + e.message + '"'
+            dataStr = '"spread.js error, cannot reparse the json output: ' + e.message + '"'
         }
 
         return cell.code + cell.marker + cell.data
@@ -102,7 +46,7 @@ var countLines = function (str) {
 
 var prettyPrintData = function (data, indent) {
     if (data === undefined) {
-        return ''
+        return '""'
     } else {
         var lines = JSON.stringify(data, null, 2).split('\n');
 

@@ -12,6 +12,10 @@
   "scripts": {
     "test": "mocha ."
   },
+  "bin": {
+    "spread.js": "src/spread.js"
+  }
+
   "author": "Guillaume Marceau",
   "license": "GPL v3.0"
 }
