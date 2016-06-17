@@ -70,7 +70,7 @@ var runAST = function (AST, filename, onCellDone) {
         }
 
         if (! _.isEqual(cellResult, jsonParseRaw(cell.data)[0])) {
-            cell.data = ' ' + prettyPrintData(cellResult, cell.indentation + cell.marker.length + 1);
+            cell.data = prettyPrintData(cellResult, cell.indentation + cell.marker.length + 1);
             cell.changed = true;
         }
 
