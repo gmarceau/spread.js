@@ -4,7 +4,9 @@
   "description": "Combines nodejs, Emacs and emacsclient into a minimalist's worksheet interface",
   "main": "spread.js",
   "dependencies": {
-    "underscore": "^1.8.3"
+    "shelljs": "^0.7.0",
+    "underscore": "^1.8.3",
+    "windows-shortcuts": "^0.1.4"
   },
   "devDependencies": {
     "should": "^9.0.2"
@@ -15,7 +17,6 @@
   "bin": {
     "spread.js": "src/index.js"
   },
-
   "author": "Guillaume Marceau",
   "license": "GPL v3.0"
 }

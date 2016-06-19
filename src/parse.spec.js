@@ -33,7 +33,7 @@ describe('parser', function () {
         '\nvar x = 5\n'
 
     describe('text', function () {
-        it.only('works on a small example', function () {
+        it('works on a small example', function () {
             var actual = parse.text(code);
             var expected = [
                 { code: ' 1 + 5                           ',
@@ -62,7 +62,6 @@ describe('parser', function () {
                     indentation: 0
                 }
             ];
-            console.log('--61', actual);
 
             actual.length.should.be.eql(expected.length);
             _.forEach(_.zip(actual, expected), function (pair) {

@@ -5,8 +5,10 @@ var fs = require('fs'),
     vm = require('vm'),
     path = require('path'),
     child = require('child_process'),
+    shell = require('shelljs'),
     jsonParseRaw = require('./json_parse_raw'),
-    parse = require('./parse');
+    parse = require('./parse'),
+    windows = require('./windows');
 
 var prettyPrintCell = function (cell) {
     if (cell.marker) {
@@ -123,11 +125,22 @@ var runFile = function (filename, onCellDone) {
 
 var notifyEmacs = function (filename) {
     var lispTemplate =
-        '(progn (set-buffer (get-file-buffer "%s")) (revert-buffer nil t))'
+        '(progn (set-buffer (find-buffer-visiting "%s")) (revert-buffer nil t))'
 
-    var lisp = util.format(lispTemplate, path.resolve(filename))
+    var lisp = util.format(
+        lispTemplate,
+        path.resolve(filename).replace(/\\/g, '/'))
 
-    child.execSync(util.format("emacsclient -n --eval '%s'", lisp))
+    var emacsclient;
+    if (windows.isWin) {
+        emacsclient = windows.emacsclient
+    } else {
+        emacsclient = shell.which('emacsclient').stdout
+    }
+    var s = child.spawnSync(emacsclient, ['-n', '--eval', lisp])
+    if (s.status != 0) {
+        throw new Error('emacsclient failed: ' + (s.stderr && s.stderr.toString()))
+    }
 }
 
 var main = function () {
