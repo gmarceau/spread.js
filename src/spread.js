@@ -4,6 +4,7 @@ var fs = require('fs'),
     _ = require('underscore'),
     vm = require('vm'),
     path = require('path'),
+    resolve = require('resolve'),
     child = require('child_process'),
     shell = require('shelljs'),
     jsonParseRaw = require('./json_parse_raw'),
@@ -36,6 +37,7 @@ var runCell = function (cell, context, filename, lineOffset, columnOffset) {
         lineOffset: lineOffset,
         columnOffset: columnOffset
     });
+
     return script.runInContext(context)
 }
 
@@ -75,8 +77,18 @@ var prettyPrintData = function (cell, newData) {
     }
 }
 
+var requireFromThere = function (filename) {
+    return function (modulePath) {
+        return require(resolve.sync(modulePath, {
+            basedir: path.dirname(filename)
+        }))
+    }
+}
+
 var runAST = function (AST, filename, onCellDone) {
-    var context = {};
+    var context = { require: requireFromThere(filename),
+                    process: process,
+                    console: console};
     vm.createContext(context);
 
     var lineOffset = 0;
