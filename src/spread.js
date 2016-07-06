@@ -65,6 +65,8 @@ var prettyPrintData = function (cell, newData) {
         // add the missing bump since it's needed
         var bump = '\n' + ' '.repeat(cell.indentation + 2) + '0, ';
         marker = cell.marker.replace(/\s*$/, bump)
+    } else {
+        marker = cell.marker
     }
 
     for(i in lines) {
