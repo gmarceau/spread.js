@@ -139,7 +139,7 @@ var runFile = function (filename, onCellDone) {
 
 var notifyEmacs = function (filename) {
     var lispTemplate =
-        '(progn (set-buffer (find-buffer-visiting "%s")) (revert-buffer nil t))'
+        '(progn (set-buffer (find-buffer-visiting "%s")) (revert-buffer nil t t))'
 
     var lisp = util.format(
         lispTemplate,
